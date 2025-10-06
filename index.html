@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <main class="scene" aria-label="3D birthday cake scene">
+        <h1 class="headline" aria-live="polite">
+            <span class="script">Happy Birthday</span>
+            <span class="name" id="recipientName">Nony</span>
+        </h1>
+
+        <section class="stage" aria-hidden="true">
+            <div class="spotlight"></div>
+
+            <article class="cake" role="img" aria-label="Three-tier birthday cake with candles">
+                <!-- Top tier -->
+                <div class="tier tier-top">
+                    <div class="frosting"></div>
+                    <div class="candles">
+                        <div class="candle">
+                            <div class="wick"></div>
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="wick"></div>
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="wick"></div>
+                            <div class="flame"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle tier -->
+                <div class="tier tier-mid">
+                    <div class="frosting"></div>
+                    <div class="sprinkles"></div>
+                </div>
+
+                <!-- Bottom tier -->
+                <div class="tier tier-bottom">
+                    <div class="frosting"></div>
+                </div>
+
+                <!-- Cake plate -->
+                <div class="plate"></div>
+            </article>
+        </section>
+
+        <p class="subtitle">Love you to the moon and back.</p>
+
+        <form class="controls" autocomplete="off" aria-label="Customize greeting">
+            <label for="nameInput">Nony</label>
+            <input id="nameInput" type="text" placeholder="Type a name..." maxlength="20" />
+            <button id="wishBtn" type="button" aria-pressed="false">Make a wish</button>
+        </form>
+    </main>
+
+    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+    <script src="Script.js"></script>
+</body>
+</html>
