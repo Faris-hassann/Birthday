@@ -2,6 +2,7 @@
 const nameInput = document.getElementById('nameInput');
 const recipientName = document.getElementById('recipientName');
 const wishBtn = document.getElementById('wishBtn');
+const sendBtn = document.getElementById('sendBtn');
 
 if (nameInput && recipientName) {
   nameInput.addEventListener('input', () => {
@@ -98,24 +99,109 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 // Wish button: blow out effect
-if (wishBtn) {
-  wishBtn.addEventListener('click', () => {
-    const pressed = wishBtn.getAttribute('aria-pressed') === 'true';
-    wishBtn.setAttribute('aria-pressed', String(!pressed));
-    // Toggle flames
-    document.querySelectorAll('.flame').forEach((f) => {
-      if (pressed) {
-        f.style.display = '';
-      } else {
-        f.animate([
-          { opacity: 1, transform: 'translateX(-50%) scale(1) rotate(0deg)' },
-          { opacity: 0, transform: 'translateX(-60%) scale(.2) rotate(-20deg)' }
-        ], { duration: 500, easing: 'ease-out' }).onfinish = () => {
-          f.style.display = 'none';
-        };
-      }
-    });
-    if (!pressed) startConfetti();
+function blowOutAndCelebrate() {
+  // Toggle flames off and celebrate
+  document.querySelectorAll('.flame').forEach((f) => {
+    f.animate([
+      { opacity: 1, transform: 'translateX(-50%) scale(1) rotate(0deg)' },
+      { opacity: 0, transform: 'translateX(-60%) scale(.2) rotate(-20deg)' }
+    ], { duration: 500, easing: 'ease-out' }).onfinish = () => {
+      f.style.display = 'none';
+    };
+  });
+  startConfetti();
+}
+
+// Optional: Server endpoint that will send the email on your behalf
+// For Google Apps Script Web App, paste the deployed URL here
+const SEND_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyWUJxg0aQ2G9_npbmjyYmLmHS2kb68y8crm4wJ897zjdEhWlVnhgPZIZ92d4JDdrrP/exec';
+
+// (Legacy optional) EmailJS config — not used when SEND_ENDPOINT is set
+const EMAILJS_PUBLIC_KEY = 'YOUR_EMAILJS_PUBLIC_KEY';
+const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+
+if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+  window.emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
+function getCurrentName() {
+  const typed = (nameInput?.value || '').trim();
+  if (typed) return typed;
+  const shown = (document.getElementById('recipientName')?.textContent || '').trim();
+  return shown || 'Friend';
+}
+
+// Send name via server endpoint (preferred)
+function sendNameByEmail() {
+  const name = getCurrentName();
+  blowOutAndCelebrate();
+
+  if (SEND_ENDPOINT && SEND_ENDPOINT.startsWith('http')) {
+    // prevent duplicate sends
+    if (sendBtn) {
+      sendBtn.disabled = true;
+      sendBtn.setAttribute('aria-busy', 'true');
+      sendBtn.textContent = 'Sending…';
+    }
+
+    fetch(SEND_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: `name=${encodeURIComponent(name)}`
+    })
+      .then(async (res) => {
+        const text = await res.text();
+        // Accept either JSON {ok:true} or plain OK
+        let ok = res.ok;
+        try {
+          const parsed = JSON.parse(text);
+          ok = ok && parsed && parsed.ok === true;
+        } catch (_) {
+          ok = ok && /^(OK|ok)$/i.test(text.trim());
+        }
+        if (!ok) throw new Error(text || `HTTP ${res.status}`);
+        alert('Sent! Happy Birthday 🎉');
+      })
+      .catch((err) => {
+        console.error('Send endpoint error', err);
+        alert(`Could not send automatically. ${err?.message || ''}`.trim());
+      })
+      .finally(() => {
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.removeAttribute('aria-busy');
+          sendBtn.textContent = 'Send Name';
+        }
+      });
+    return;
+  }
+
+  // Fallback to EmailJS if configured
+  if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+    const templateParams = { to_email: 'felmola13@gmail.com', name };
+    window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+      .then(() => alert('Sent! Happy Birthday 🎉'))
+      .catch((err) => {
+        console.error('EmailJS error', err);
+        alert('Could not send automatically. Please try again later.');
+      });
+    return;
+  }
+
+  alert('Configure SEND_ENDPOINT to send automatically from Gmail.');
+}
+
+if (sendBtn) {
+  sendBtn.addEventListener('click', sendNameByEmail);
+}
+
+if (nameInput) {
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendNameByEmail();
+    }
   });
 }
 

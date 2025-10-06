@@ -59,13 +59,14 @@
 
         <form class="controls" autocomplete="off" aria-label="Customize greeting">
             <label for="nameInput">Nony</label>
-            <input id="nameInput" type="text" placeholder="Type a name..." maxlength="20" />
-            <button id="wishBtn" type="button" aria-pressed="false">Make a wish</button>
+            <input id="nameInput" type="text" placeholder="Type it Here..."/>
+            <button id="sendBtn" type="button" aria-label="Send name to email">Send Name</button>
         </form>
     </main>
 
     <canvas id="confettiCanvas" aria-hidden="true"></canvas>
 
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script src="Script.js"></script>
 </body>
 </html>
